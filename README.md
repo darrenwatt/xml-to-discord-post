@@ -1,7 +1,7 @@
-news-alert-discord
+xml-to-discord-post
 ===
 
-Scrapes BBC News homepage searching for search terms, alerts in Discord or to Twitter. That's it.
+Scrapes XML feeds, e.g. BBC News searching for search terms, alerts in Discord or to Twitter. That's it.
 
 The following vars need to be defined in .env file
 ```
@@ -17,11 +17,11 @@ For the rest of the available config values, see config.py
 Docker Image
 ====
 
-https://cloud.docker.com/repository/docker/darrenwatt/news-alert-discord
+https://cloud.docker.com/repository/docker/darrenwatt/TBA....
 
 To run locally:
 ```
-$ docker run -it --name news-alert-discord -v "$PWD/.env:/.env" darrenwatt/news-alert-discord:latest
+$ docker run -it --name container-name -v "$PWD/.env:/.env" darrenwatt/news-alert-discord:latest
 ```
 To run from docker-compose, in your docker-compose.yml
 ```
