@@ -1,6 +1,7 @@
 from ast import keyword
 from config import Config
 from pymongo import MongoClient
+from bs4 import BeautifulSoup
 import xml.dom.minidom
 import requests, time, json, re, tweepy, logging
 
@@ -30,6 +31,8 @@ if Config.TWITTER_NOTIFY == 'True':
 
 else:
     logging.info("Tweeting is disabled")
+
+
 
 
 # keyword handling
@@ -78,10 +81,25 @@ def scrape_bbc_news_xml(url):
             story_dict['headline'] = title
             story_dict['description'] = description
             story_dict['url'] = link
+            story_dict['img'] = get_image_from_meta(link)
             stories_list.append(story_dict)
         else:
             logging.debug("No matches found")
     return stories_list
+
+def get_image_from_meta(link):
+    logging.info('getting data from url')
+    try:
+        response = requests.get(link)
+    except requests.exceptions.RequestException as e:
+        logging.info(e)
+        logging.info("Fail. Never mind... we'll try again in a bit.")
+        return
+    doc = BeautifulSoup(response.text, 'html.parser')
+    result = doc.find("meta", property="og:image")
+    img = result['content']
+    print("img: " + img )
+    return img
 
 def update_stories_in_db(stories_list):
     logging.info('Updating stories in db, if required ...')
@@ -125,6 +143,7 @@ def do_discord_notification(story):
     embed_headline = story['headline']
     embed_url = story['url']
     embed_summary = story['description']
+    embed_image = story['img']
 
     url = Config.DISCORD_WEBHOOK_URL
 
@@ -133,6 +152,7 @@ def do_discord_notification(story):
     embed = {"description": embed_summary,
              "title": embed_headline,
              "url": embed_url,
+             "image": {'url': embed_image},
              "footer": {'text': embed_url}}
     data["embeds"].append(embed)
 
