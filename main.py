@@ -53,20 +53,20 @@ logging.info("regex output: %s", reg)
 
 def scrape_bbc_news_xml(url):
     logging.info("getting stories ...")
-    logging.info("xml source url: %s", url)
+    logging.debug("xml source url: %s", url)
 
     try:
         resp = requests.get(url)
-        logging.info('response code: %s', resp.status_code)
-        logging.info("saving to file")
+        logging.debug('response code: %s', resp.status_code)
+        logging.debug("saving to file")
         with open('temp.xml', 'wb') as f: 
             f.write(resp.content)
     except requests.exceptions.RequestException as e:
-        logging.info(e)
-        logging.info("Failed. Never mind... we'll try again in a bit.")
+        logging.warning(e)
+        logging.warning("Failed. Never mind... we'll try again in a bit.")
         return
 
-    logging.info("parsing xml ...")
+    logging.debug("parsing xml ...")
     xml_doc = xml.dom.minidom.parse('temp.xml')
     newsitems = xml_doc.getElementsByTagName('item')
     stories_list = []
@@ -88,12 +88,12 @@ def scrape_bbc_news_xml(url):
     return stories_list
 
 def get_image_from_meta(link):
-    logging.info('getting data from url')
+    logging.debug('getting data from url')
     try:
         response = requests.get(link)
     except requests.exceptions.RequestException as e:
-        logging.info(e)
-        logging.info("Fail. Never mind... we'll try again in a bit.")
+        logging.warning(e)
+        logging.warning("Fail. Never mind... we'll try again in a bit.")
         return
     doc = BeautifulSoup(response.text, 'html.parser')
     result = doc.find("meta", property="og:image")
@@ -102,7 +102,7 @@ def get_image_from_meta(link):
     return img
 
 def update_stories_in_db(stories_list):
-    logging.info('Updating stories in db, if required ...')
+    logging.debug('Updating stories in db, if required ...')
 
     for story in stories_list:
         logging.debug("working on story: ")
@@ -113,7 +113,7 @@ def update_stories_in_db(stories_list):
         url = story['url']
         already_there_url = collection.count_documents({"url": url})
         if already_there_url == 0:
-            logging.info("Looks new, adding story to db collection ...")
+            logging.debug("Looks new, adding story to db collection ...")
             story['timestamp'] = time.time()
             insert_result = collection.insert_one(story)
             if insert_result.acknowledged:
@@ -122,23 +122,23 @@ def update_stories_in_db(stories_list):
                 if Config.TWITTER_NOTIFY == 'True':
                     do_twitter_notification(story)
         else:
-            logging.info("Story already in DB ... " + url )
+            logging.debug("Story already in DB ... " + url )
 
 
 def do_twitter_notification(story):
-    logging.info("Doing a Twitter notification...")
+    logging.debug("Doing a Twitter notification...")
     embed_url = story['url']
     response = client.create_tweet(
             text=Config.TWITTER_STATUS_PREFIX + " " + story['headline']+ "  " + embed_url
             )
     print(f"https://twitter.com/user/status/{response.data['id']}")
-    logging.info("Twitter notification complete.")
+    logging.debug("Twitter notification complete.")
     logging.info("Tweeted: " + story['headline'])
 
 
 def do_discord_notification(story):
-    logging.info("Doing a discord notification...")
-    logging.info(story)
+    logging.debug("Doing a discord notification...")
+    logging.debug(story)
 
     embed_headline = story['headline']
     embed_url = story['url']
@@ -161,18 +161,18 @@ def do_discord_notification(story):
     try:
         result.raise_for_status()
     except requests.exceptions.HTTPError as err:
-        logging.info(err)
+        logging.warning(err)
     else:
-        logging.info("Notification delivered successfully, code {}.".format(result.status_code))
+        logging.debug("Notification delivered successfully, code {}.".format(result.status_code))
 
-    logging.info("Done the discord notification:")
+    logging.debug("Done the discord notification:")
 
 
 def main():
 
 
     urls=Config.SOURCE_XML.split()
-    logging.info("URLs: %s", urls)
+    logging.debug("URLs: %s", urls)
 
     while True:
         # the main bit
@@ -180,16 +180,16 @@ def main():
 
             get_stories_list = scrape_bbc_news_xml(url)
 
-            logging.info("We have %s stories to check against the DB", str(len(get_stories_list)))
+            logging.debug("We have %s stories to check against the DB", str(len(get_stories_list)))
 
             # chuck results in db
             if get_stories_list:
                 update_stories_in_db(get_stories_list)
             else:
-                logging.info("No new stories found.")
+                logging.debug("No new stories found.")
 
         # loop delay
-        logging.info("Waiting for next run.")
+        logging.debug("Waiting for next run.")
         time.sleep(int(Config.REPEAT_DELAY))
 
 if __name__ == '__main__':
