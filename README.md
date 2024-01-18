@@ -17,11 +17,9 @@ For the rest of the available config values, see config.py
 Docker Image
 ====
 
-https://cloud.docker.com/repository/docker/darrenwatt/TBA....
-
 To run locally:
 ```
-$ docker run -it --name container-name -v "$PWD/.env:/.env" darrenwatt/news-alert-discord:latest
+$ docker run -it --name container-name -v "$PWD/.env:/.env" darrenwatt/news-xml-alert-discord:latest
 ```
 To run from docker-compose, in your docker-compose.yml
 ```
@@ -29,7 +27,7 @@ services:
 
   news-alert-discord:
 
-    image: darrenwatt/news-alert-discord:latest
+    image: darrenwatt/news-xml-alert-discord:latest
 
     container_name: news-alert-discord
 
