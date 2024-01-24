@@ -73,7 +73,11 @@ def scrape_bbc_news_xml(url):
     for item in newsitems:
         story_dict = {}
         title = item.getElementsByTagName('title')[0].childNodes[0].data
-        description = item.getElementsByTagName('description')[0].childNodes[0].data
+        # try block because sometimes descriptions aren't included in the XML
+        try:
+            description = item.getElementsByTagName('description')[0].childNodes[0].data
+        except IndexError:
+            description=" "
         link = item.getElementsByTagName('guid')[0].childNodes[0].data
         logging.debug("Checking headline: %s - %s", title, link)
         if reg.search(title):
