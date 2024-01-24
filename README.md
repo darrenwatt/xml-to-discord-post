@@ -3,6 +3,8 @@ xml-to-discord-post
 
 Scrapes XML feeds, e.g. BBC News searching for search terms, alerts in Discord or to Twitter. That's it.
 
+Uses MongoDB (Atlas, cloud hosted mongo) to keep track of what's been posted already.
+
 The following vars need to be defined in .env file
 ```
 # database connection string for Atlas
