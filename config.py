@@ -32,3 +32,8 @@ class Config(object):
     TWITTER_ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN") or 'False'
     TWITTER_ACCESS_TOKEN_SECRET = os.getenv("TWITTER_ACCESS_TOKEN_SECRET") or 'False'
     TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN") or 'False'
+
+    # Bluesky - off by default
+    BLUESKY_ENABLED = os.getenv("BLUESKY_ENABLED") or "False"
+    BLUESKY_APP_USERNAME = os.getenv("BLUESKY_APP_USERNAME") or None
+    BLUESKY_APP_PASSWORD = os.getenv("BLUESKY_APP_PASSWORD") or None
