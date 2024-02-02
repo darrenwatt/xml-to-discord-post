@@ -122,8 +122,8 @@ def update_stories_in_db(stories_list):
                 do_discord_notification(story)
             if Config.TWITTER_NOTIFY == 'True':
                 do_twitter_notification(story)
-            # bluesky lib checks if enabled
-            bluesky.do_bluesky_notification(story)
+            if Config.BLUESKY_ENABLED == 'True':
+                bluesky.do_bluesky_notification(story)
             # then put into DB
             insert_result = collection.insert_one(story)
         else:
