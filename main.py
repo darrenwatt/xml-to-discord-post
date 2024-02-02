@@ -4,6 +4,8 @@ from pymongo import MongoClient
 from bs4 import BeautifulSoup
 import xml.dom.minidom
 import requests, time, json, re, tweepy, logging
+import bluesky
+
 
 
 Config = Config()
@@ -28,11 +30,8 @@ if Config.TWITTER_NOTIFY == 'True':
     consumer_key=twitter_consumer_key, consumer_secret=twitter_consumer_secret,
     access_token=twitter_access_token, access_token_secret=twitter_access_token_secret
     )
-
 else:
     logging.info("Tweeting is disabled")
-
-
 
 
 # keyword handling
@@ -117,14 +116,16 @@ def update_stories_in_db(stories_list):
         url = story['url']
         already_there_url = collection.count_documents({"url": url})
         if already_there_url == 0:
-            logging.debug("Looks new, adding story to db collection ...")
+            logging.debug("Looks new, posting updates and then adding story to db collection ...")
             story['timestamp'] = time.time()
+            if Config.DISCORD_NOTIFY == 'True':
+                do_discord_notification(story)
+            if Config.TWITTER_NOTIFY == 'True':
+                do_twitter_notification(story)
+            # bluesky lib checks if enabled
+            bluesky.do_bluesky_notification(story)
+            # then put into DB
             insert_result = collection.insert_one(story)
-            if insert_result.acknowledged:
-                if Config.DISCORD_NOTIFY == 'True':
-                    do_discord_notification(story)
-                if Config.TWITTER_NOTIFY == 'True':
-                    do_twitter_notification(story)
         else:
             logging.debug("Story already in DB ... " + url )
 
@@ -138,6 +139,7 @@ def do_twitter_notification(story):
     print(f"https://twitter.com/user/status/{response.data['id']}")
     logging.debug("Twitter notification complete.")
     logging.info("Tweeted: " + story['headline'])
+
 
 
 def do_discord_notification(story):
@@ -172,11 +174,23 @@ def do_discord_notification(story):
     logging.debug("Done the discord notification:")
 
 
-def main():
+def do_twitter_notification(story):
+    logging.debug("Doing a Twitter notification...")
+    embed_url = story['url']
+    response = client.create_tweet(
+            text=Config.TWITTER_STATUS_PREFIX + " " + story['headline']+ "  " + embed_url
+            )
+    print(f"https://twitter.com/user/status/{response.data['id']}")
+    logging.debug("Twitter notification complete.")
+    logging.info("Tweeted: " + story['headline'])
 
+
+def main():
 
     urls=Config.SOURCE_XML.split()
     logging.debug("URLs: %s", urls)
+
+    bluesky.bluesky_config_check()
 
     while True:
         # the main bit

@@ -35,4 +35,5 @@ class Config(object):
 
     # Bluesky - off by default
     BLUESKY_ENABLED = os.getenv("BLUESKY_ENABLED") or "False"
-    BLUESKY_APP_PASSWORD = os.getenv("BLUESKY_APP_PASSWORD") or "None"
+    BLUESKY_APP_USERNAME = os.getenv("BLUESKY_APP_USERNAME") or None
+    BLUESKY_APP_PASSWORD = os.getenv("BLUESKY_APP_PASSWORD") or None
