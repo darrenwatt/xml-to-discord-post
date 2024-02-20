@@ -91,7 +91,7 @@ def scrape_bbc_news_xml(url):
     return stories_list
 
 def get_image_from_meta(link):
-    logging.debug('getting data from url')
+    logging.debug('getting image from url')
     try:
         response = requests.get(link)
     except requests.exceptions.RequestException as e:
@@ -117,29 +117,19 @@ def update_stories_in_db(stories_list):
         already_there_url = collection.count_documents({"url": url})
         if already_there_url == 0:
             logging.debug("Looks new, posting updates and then adding story to db collection ...")
+            # then put into DB
+            insert_result = collection.insert_one(story)
+            print("Inserted result = " + str(insert_result.acknowledged))
             story['timestamp'] = time.time()
+            # do notifications
             if Config.DISCORD_NOTIFY == 'True':
                 do_discord_notification(story)
             if Config.TWITTER_NOTIFY == 'True':
                 do_twitter_notification(story)
             if Config.BLUESKY_ENABLED == 'True':
                 bluesky.do_bluesky_notification(story)
-            # then put into DB
-            insert_result = collection.insert_one(story)
         else:
             logging.debug("Story already in DB ... " + url )
-
-
-def do_twitter_notification(story):
-    logging.debug("Doing a Twitter notification...")
-    embed_url = story['url']
-    response = client.create_tweet(
-            text=Config.TWITTER_STATUS_PREFIX + " " + story['headline']+ "  " + embed_url
-            )
-    print(f"https://twitter.com/user/status/{response.data['id']}")
-    logging.debug("Twitter notification complete.")
-    logging.info("Tweeted: " + story['headline'])
-
 
 
 def do_discord_notification(story):
@@ -167,7 +157,7 @@ def do_discord_notification(story):
     try:
         result.raise_for_status()
     except requests.exceptions.HTTPError as err:
-        logging.warning(err)
+        logging.error(err)
     else:
         logging.debug("Notification delivered successfully, code {}.".format(result.status_code))
 
@@ -177,10 +167,14 @@ def do_discord_notification(story):
 def do_twitter_notification(story):
     logging.debug("Doing a Twitter notification...")
     embed_url = story['url']
-    response = client.create_tweet(
-            text=Config.TWITTER_STATUS_PREFIX + " " + story['headline']+ "  " + embed_url
-            )
-    print(f"https://twitter.com/user/status/{response.data['id']}")
+    try:
+        response = client.create_tweet(
+                text=Config.TWITTER_STATUS_PREFIX + " " + story['headline']+ "  " + embed_url
+                )
+        print(f"https://twitter.com/user/status/{response.data['id']}")
+    except tweepy.TooManyRequests as err:
+        logging.error(err)
+
     logging.debug("Twitter notification complete.")
     logging.info("Tweeted: " + story['headline'])
 
