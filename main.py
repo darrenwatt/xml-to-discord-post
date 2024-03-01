@@ -114,6 +114,10 @@ def update_stories_in_db(stories_list):
 
         # check for url to remove reposts
         url = story['url']
+        # drop the random hashes BBC started putting into guids
+        truncated_url = url.split('#')[0]
+        url = truncated_url
+
         already_there_url = collection.count_documents({"url": url})
         if already_there_url == 0:
             logging.debug("Looks new, posting updates and then adding story to db collection ...")
