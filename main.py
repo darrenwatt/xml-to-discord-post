@@ -78,6 +78,9 @@ def scrape_bbc_news_xml(url):
         except IndexError:
             description=" "
         link = item.getElementsByTagName('guid')[0].childNodes[0].data
+        # drop the random hashes BBC started putting into guids
+        truncated_link = link.split('#')[0]
+        link = truncated_link
         logging.debug("Checking headline: %s - %s", title, link)
         if reg.search(title):
             logging.info("Match found: %s. %s", title, description)
@@ -114,9 +117,6 @@ def update_stories_in_db(stories_list):
 
         # check for url to remove reposts
         url = story['url']
-        # drop the random hashes BBC started putting into guids
-        truncated_url = url.split('#')[0]
-        url = truncated_url
 
         already_there_url = collection.count_documents({"url": url})
         if already_there_url == 0:
