@@ -1,7 +1,7 @@
 xml-to-discord-post
 ===
 
-Scrapes XML feeds, e.g. BBC News searching for search terms, alerts in Discord or to Twitter. That's it.
+Scrapes XML feeds, e.g. BBC News searching for search terms, alerts in Discord, Twitter, or Bluesky. That's it.
 
 Uses MongoDB (Atlas, cloud hosted mongo) to keep track of what's been posted already.
 
@@ -28,21 +28,21 @@ docker buildx build --platform linux/amd64,linux/arm64 -t <tag> --push .\
 
 To run locally:
 ```
-$ docker run -it --name container-name -v "$PWD/.env:/.env" darrenwatt/news-xml-alert-discord:latest
+$ docker run -it --name container-name -v "$PWD/.env:/.env" darrenwatt:xml-to-discord-post:latest
 ```
 To run from docker-compose, in your docker-compose.yml
 ```
 services:
 
-  news-alert-discord:
+  xml-to-discord-post:
 
-    image: darrenwatt/news-xml-alert-discord:latest
+    image: darrenwatt/xml-to-discord-post:latest
 
-    container_name: news-alert-discord
+    container_name: xml-to-discord-post
 
     volumes:
 
-     - ${USERDIR}/docker/news-alert-discord/.env:/.env
+     - ${USERDIR}/docker/xml-to-discord-post/.env:/.env
 
 ```
 Then run with:
