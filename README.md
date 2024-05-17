@@ -19,6 +19,13 @@ For the rest of the available config values, see config.py
 Docker Image
 ====
 
+Building:
+```
+docker buildx create --name multiarch_builder --use # if no multiarch env exists already
+docker buildx inspect multiarch_builder --bootstrap
+docker buildx build --platform linux/amd64,linux/arm64 -t <tag> --push .\
+```
+
 To run locally:
 ```
 $ docker run -it --name container-name -v "$PWD/.env:/.env" darrenwatt/news-xml-alert-discord:latest

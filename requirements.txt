@@ -13,4 +13,4 @@ yarl==1.3.0
 tweepy
 dnspython
 bs4
-atproto==0.0.39
+atproto==0.0.46

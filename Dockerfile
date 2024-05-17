@@ -1,7 +1,14 @@
-FROM python:3.8-alpine
+FROM python:3.11-alpine
 
-RUN apk add gcc musl-dev libffi-dev \
-&& pip install --upgrade pip
+RUN apk update && apk add --no-cache \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    openssl-dev \
+    cargo \
+    rust
+
+RUN pip install --upgrade pip
 
 WORKDIR /app
 COPY . /app
