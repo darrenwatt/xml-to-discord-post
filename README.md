@@ -42,9 +42,11 @@ services:
 
     volumes:
 
-     - ${USERDIR}/docker/xml-to-discord-post/.env:/.env
+     - ${USERDIR}/docker-stuff/xml-to-discord-post/.env:/.env
 
 ```
+
+
 Then run with:
 ```
 $ docker-compose -f ~/docker/docker-compose.yml up -d
