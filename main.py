@@ -6,7 +6,13 @@ import xml.dom.minidom
 import requests, time, json, re, tweepy, logging
 import bluesky
 
-
+# Define common headers
+COMMON_HEADERS = {
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+}
 
 Config = Config()
 logging.basicConfig(format=Config.LOG_FORMAT, level=Config.LOG_LEVEL)
@@ -55,7 +61,7 @@ def scrape_bbc_news_xml(url):
     logging.debug("xml source url: %s", url)
 
     try:
-        resp = requests.get(url)
+        resp = requests.get(url, headers=COMMON_HEADERS, timeout=30)
         logging.debug('response code: %s', resp.status_code)
         logging.debug("saving to file")
         with open('temp.xml', 'wb') as f: 
@@ -96,7 +102,7 @@ def scrape_bbc_news_xml(url):
 def get_image_from_meta(link):
     logging.debug('getting image from url')
     try:
-        response = requests.get(link)
+        response = requests.get(link, headers=COMMON_HEADERS, timeout=30)
     except requests.exceptions.RequestException as e:
         logging.warning(e)
         logging.warning("Fail. Never mind... we'll try again in a bit.")
