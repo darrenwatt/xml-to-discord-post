@@ -38,7 +38,7 @@ jobs:
         with:
           images: darrenwatt/xml-to-discord-post
           tags: |
-            type=sha,format=true,prefix=
+            type=sha,format=short
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: 🏗️ Build and Push Docker Image
